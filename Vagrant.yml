@@ -1,0 +1,18 @@
+---
+- name: Update kernel
+  hosts: ubuntu
+  become: true
+  tasks:
+    - name: Apt download
+      ansible.builtin.get_url:
+        url: "https://kernel.ubuntu.com/mainline/v6.14.10/amd64/{{ item.filename }}"
+        dest: "{{ item.destdir }}/{{ item.filename }}"
+        mode: '0777'
+      loop:
+        - { filename: "linux-headers-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb", destdir: "/tmp" }
+        - { filename: "linux-headers-6.14.10-061410_6.14.10-061410.202506041434_all.deb", destdir: "/tmp" }
+        - { filename: "linux-image-unsigned-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb", destdir: "/tmp" }
+        - { filename: "linux-modules-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb", destdir: "/tmp" }
+    - name: Apt install
+      ansible.builtin.apt:
+        deb: /tmp/*.deb
