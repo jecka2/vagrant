@@ -35,7 +35,7 @@
     - name: Reboot the machine and wait for it to come back online
       ansible.builtin.reboot:
         reboot_timeout: 600
-        
+
     - name: Re-gather facts after package installation
       ansible.builtin.setup:
         gather_subset: "all"
