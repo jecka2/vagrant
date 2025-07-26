@@ -3,6 +3,11 @@
   hosts: ubuntu
   become: true
   tasks:
+
+    - name: Display kernel version
+      ansible.builtin.debug:
+        msg: "The Linux kernel version on {{ inventory_hostname }} is {{ ansible_facts['kernel'] }}"
+
     - name: Apt download
       ansible.builtin.get_url:
         url: "https://kernel.ubuntu.com/mainline/v6.14.10/amd64/{{ item.filename }}"
@@ -13,6 +18,28 @@
         - { filename: "linux-headers-6.14.10-061410_6.14.10-061410.202506041434_all.deb", destdir: "/tmp" }
         - { filename: "linux-image-unsigned-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb", destdir: "/tmp" }
         - { filename: "linux-modules-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb", destdir: "/tmp" }
+
+    - name: Ensure Apt is up to date
+      ansible.builtin.apt:
+        update_cache: true
+
     - name: Apt install
       ansible.builtin.apt:
-        deb: /tmp/*.deb
+        deb: "{{ item }}"
+      loop:
+        - /tmp/linux-headers-6.14.10-061410_6.14.10-061410.202506041434_all.deb
+        - /tmp/linux-modules-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb
+        - /tmp/linux-headers-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb
+        - /tmp/linux-image-unsigned-6.14.10-061410-generic_6.14.10-061410.202506041434_amd64.deb
+
+    - name: Reboot the machine and wait for it to come back online
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+        
+    - name: Re-gather facts after package installation
+      ansible.builtin.setup:
+        gather_subset: "all"
+
+    - name: Display kernel version
+      ansible.builtin.debug:
+        msg: "The Linux kernel version on {{ inventory_hostname }} is {{ ansible_facts['kernel'] }}"

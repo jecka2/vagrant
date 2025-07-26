@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
-    config.vm.define "ubuntu" do |srv|
-        srv.vm.box = "ubuntu/trusty64"
+        config.vm.define "ubuntu" do |srv|
+        srv.vm.box = "boxen/ubuntu-24.10"
         srv.vm.synced_folder "." "/home/jecka/Documents" , disabled: true
         srv.vm.hostname= "ubuntu"
         srv.vm.provider  "virtualbox" do |vb|
